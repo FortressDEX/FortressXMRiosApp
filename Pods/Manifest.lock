@@ -1,0 +1,56 @@
+PODS:
+  - Alamofire (4.7.3)
+  - AMPopTip (3.5.0)
+  - BigInt (3.1.0):
+    - SipHash (~> 1.2)
+  - ofxiOSBoost (1.60.0)
+  - PKHUD (5.2.0)
+  - Popover (1.2.0)
+  - ReachabilitySwift (4.3.0)
+  - RNCryptor (5.0.3)
+  - SipHash (1.2.2)
+  - SwiftDate (4.5.1)
+  - SwiftyJSON (4.3.0)
+
+DEPENDENCIES:
+  - Alamofire (= 4.7.3)
+  - AMPopTip (= 3.5.0)
+  - BigInt (= 3.1.0)
+  - ofxiOSBoost (= 1.60.0)
+  - PKHUD (= 5.2.0)
+  - Popover (= 1.2.0)
+  - ReachabilitySwift (= 4.3.0)
+  - RNCryptor (= 5.0.3)
+  - SwiftDate (= 4.5.1)
+  - SwiftyJSON (~> 4.0)
+
+SPEC REPOS:
+  https://github.com/CocoaPods/Specs.git:
+    - Alamofire
+    - AMPopTip
+    - BigInt
+    - ofxiOSBoost
+    - PKHUD
+    - Popover
+    - ReachabilitySwift
+    - RNCryptor
+    - SipHash
+    - SwiftDate
+    - SwiftyJSON
+
+SPEC CHECKSUMS:
+  Alamofire: c7287b6e5d7da964a70935e5db17046b7fde6568
+  AMPopTip: 871ae0570b68fe396e714922b3f7d8ed6a36bb71
+  BigInt: 76b5dfdfa3e2e478d4ffdf161aeede5502e2742f
+  ofxiOSBoost: c5c7c57eb7c5b1b026dca45499da99fd634574d1
+  PKHUD: dd5357ac65f26115c35c4a68e9b328053326c5fe
+  Popover: 28c1ac8e937ab2b3965bd2da7dd18324357abc41
+  ReachabilitySwift: 408477d1b6ed9779dba301953171e017c31241f3
+  RNCryptor: c93d19029dcf7ff160aca0f24d6c9e7b0d82f664
+  SipHash: fad90a4683e420c52ef28063063dbbce248ea6d4
+  SwiftDate: 7b56d42a221f582047287deb256b23fc5ed49a60
+  SwiftyJSON: 6faa0040f8b59dead0ee07436cbf76b73c08fd08
+
+PODFILE CHECKSUM: 748b47efc4b0d1588500210032c4e6b7cfbf4803
+
+COCOAPODS: 1.11.3

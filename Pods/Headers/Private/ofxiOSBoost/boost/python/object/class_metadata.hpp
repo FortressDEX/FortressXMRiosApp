@@ -1,0 +1,1 @@
+../../../../../../ofxiOSBoost/libs/boost/include/boost/python/object/class_metadata.hpp

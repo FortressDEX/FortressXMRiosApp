@@ -1,0 +1,1 @@
+../../../../../../../ofxiOSBoost/libs/boost/include/boost/geometry/algorithms/detail/has_self_intersections.hpp

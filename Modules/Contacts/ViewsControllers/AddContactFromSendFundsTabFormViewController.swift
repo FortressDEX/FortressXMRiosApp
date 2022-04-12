@@ -1,0 +1,238 @@
+//
+//  AddContactFromSendFundsTabFormViewController.swift
+//  MyMonero
+//
+//  Created by Paul Shapiro on 7/24/17.
+//  Copyright (c) 2014-2019, MyMonero.com
+//
+//  All rights reserved.
+//
+//  Redistribution and use in source and binary forms, with or without modification, are
+//  permitted provided that the following conditions are met:
+//
+//  1. Redistributions of source code must retain the above copyright notice, this list of
+//	conditions and the following disclaimer.
+//
+//  2. Redistributions in binary form must reproduce the above copyright notice, this list
+//	of conditions and the following disclaimer in the documentation and/or other
+//	materials provided with the distribution.
+//
+//  3. Neither the name of the copyright holder nor the names of its contributors may be
+//	used to endorse or promote products derived from this software without specific
+//	prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+//  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+//  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+//  THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+//  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+//  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+//  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+//  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+//  THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+//
+import UIKit
+//
+class AddContactFromSendFundsTabFormViewController: AddContactFromOtherTabFormViewController
+{
+	//
+	// Constants
+	struct InitializationParameters
+	{
+		var enteredAddressValue: String // not nil; this ought to also always be the .address we save to the Contact
+		var integratedAddressPIDForDisplay_orNil: MoneroPaymentID?
+		var resolvedAddress: MoneroAddress?
+		var sentWith_paymentID: MoneroPaymentID? // nil for integrated addr
+	}
+	//
+	// Parameters - Initial
+	var parameters: InitializationParameters
+	var isEnteredAddress_integrated: Bool
+	var isEnteredValue_subAddress: Bool
+	var isEnteredAddress_OA: Bool
+	//
+	var detected_iconAndMessageView: UICommonComponents.DetectedIconAndMessageView?
+	let fieldGroupDecorationSectionView = UICommonComponents.Form.FieldGroupDecorationSectionView(
+		sectionHeaderTitle: NSLocalizedString("SAVE THIS ADDRESS AS A CONTACT?", comment: "")
+		// Note: This 'decoration' view is admittedly fairly lame. Better solution would be to enhance the ContactForm to support placing fields inside of a SectionView in the same manner as Details.FieldViews
+	)
+	//
+	// Setup
+	init(parameters: InitializationParameters)
+	{
+		self.parameters = parameters
+		//
+		let isEnteredAddress_OA = OpenAlias.containsPeriod_excludingAsXMRAddress_qualifyingAsPossibleOAAddress(
+			self.parameters.enteredAddressValue
+		)
+		self.isEnteredAddress_OA = isEnteredAddress_OA
+		//
+		let isEnteredAddress_integrated = MyMoneroCore.shared_objCppBridge.isIntegratedAddress(
+			self.parameters.enteredAddressValue
+		)
+		self.isEnteredAddress_integrated = isEnteredAddress_integrated
+		//
+		self.isEnteredValue_subAddress = isEnteredAddress_OA == false && isEnteredAddress_integrated == false
+			? MyMoneroCore.shared_objCppBridge.isSubAddress(self.parameters.enteredAddressValue)
+			: false
+		//
+		super.init()
+	}
+	required init?(coder aDecoder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+	override func setup()
+	{
+		super.setup()
+	}
+	override func setup_views()
+	{
+		do { // underneath other views
+			let view = self.fieldGroupDecorationSectionView
+			self.scrollView.addSubview(view)
+		}
+		super.setup_views()
+		self.set(
+			validationMessage: NSLocalizedString("Your Monero is on its way.", comment: ""),
+			wantsXButton: true, // could also be false
+			wantsFeedbackGenerated: false
+		)
+		do {
+			self.address_inputView.set(isEnabled: false)
+			self.address_inputView.isImmutable = true
+			//
+			var value = self.parameters.enteredAddressValue
+			if self.isEnteredAddress_OA {
+				value = value.lowercased() // jic
+			}
+			self.address_inputView.textView.text = value
+		}
+		if self.paymentID_inputView != nil {
+			self.paymentID_inputView!.set(isEnabled: false)
+			self.paymentID_inputView!.isImmutable = true
+			self.paymentID_inputView!.textView.text = self.parameters.integratedAddressPIDForDisplay_orNil ?? self.parameters.sentWith_paymentID
+		}
+		//
+		let wantsDetectedIndicator = self.isEnteredAddress_integrated // either integrated
+			|| (self.isEnteredAddress_OA && self._overridable_wants_paymentID_fieldAccessoryMessageLabel) // or OA and we are going to show the field
+		if wantsDetectedIndicator {
+			let view = UICommonComponents.DetectedIconAndMessageView()
+			self.scrollView.addSubview(view)
+			self.detected_iconAndMessageView = view
+		}
+	}
+	override func setup_navigation()
+	{
+		super.setup_navigation()
+		self.navigationItem.title = NSLocalizedString("Save Contact", comment: "")
+	}
+	//
+	// Accessors - Internal
+	var new_customFieldsetContainerInsets: UIEdgeInsets {
+		return UIEdgeInsets.init(
+			top: 0 + UICommonComponents.Form.FieldLabel.fixedHeight + 8 + UICommonComponents.Form.FieldLabel.marginAboveLabelForUnderneathField_textInputView,/*approx*/
+			left: 16,
+			bottom: 0,
+			right: 16
+		)
+	}
+	//
+	// Accessors - Overrides
+	override var _overridable_wants_paymentIDField: Bool {
+		return self.parameters.sentWith_paymentID != nil || self.parameters.integratedAddressPIDForDisplay_orNil != nil // if we have a pid, show; else just hide
+	}
+	override var _overridable_wants_paymentID_fieldAccessoryMessageLabel: Bool {
+		return false // regardless
+	}
+	override func _overridable_cancelBarButtonTitle_orNilForDefault() -> String? {
+		return NSLocalizedString("Don't Save", comment: "")
+	}
+	override var _overridable_defaultFalse_canSkipEntireOAResolveAndDirectlyUseInputValues: Bool {
+		return true // very special case - we've just done the resolve during the Send we just came from
+	}
+	override var _overridable_defaultNil_skippingOAResolve_explicit__cached_OAResolved_XMR_address: MoneroAddress? {
+		return self.parameters.resolvedAddress // may be nil
+	}
+	override var _overridable_wants_qrPickingButtons: Bool { return false }
+	override var _overridable_wantsInputPermanentlyDisabled_address: Bool {
+		return true
+	}
+	override var _overridable_wantsInputPermanentlyDisabled_paymentID: Bool {
+		return true
+	}
+	override var sanitizedInputValue__paymentID: MoneroPaymentID? {
+		if self.isEnteredValue_subAddress {
+			return nil // just a partial failsafe to stop pids somehow getting saved - though, we should also cover OA subaddress records possibly coming with a pid
+		}
+		// causing this to ignore field input and use values directly to avoid integrated addr pid submission
+		if self.isEnteredAddress_integrated {
+			return nil // no need to save one - the actual entered value is an integrated address
+		}
+		return self.parameters.sentWith_paymentID // and not the integrated addr pid which is only for display
+	}
+	override var _overridable_bottomMostView: UIView { // support layout this out while preserving scroll size etc
+		return self.detected_iconAndMessageView ?? super._overridable_bottomMostView
+	}
+	//
+	//
+	// Accessors - Lookups/Derived - Layout metrics
+	override var new__messageView_left: CGFloat {
+		return super.new__messageView_left - self.new_customFieldsetContainerInsets.left // must pad the messageView with the new_customFieldsetContainerInsets b/c super bases it on self.new_subviewLayoutInsets
+	}
+	override var new__messageView_right: CGFloat {
+		return super.new__messageView_right - self.new_customFieldsetContainerInsets.right // must pad the messageView with the new_customFieldsetContainerInsets b/c super bases it on self.new_subviewLayoutInsets
+	}
+	override var new_subviewLayoutInsets: UIEdgeInsets {
+		let base = super.new_subviewLayoutInsets
+		let customFieldsetContainerInsets = self.new_customFieldsetContainerInsets
+		
+		return UIEdgeInsets.init(
+			top: base.top + customFieldsetContainerInsets.top,
+			left: base.left + customFieldsetContainerInsets.left,
+			bottom: base.bottom + customFieldsetContainerInsets.bottom,
+			right: base.right + customFieldsetContainerInsets.right
+		)
+	}
+	//
+	// Delegation - Overrides - Layout
+	override func viewDidLayoutSubviews()
+	{
+		super.viewDidLayoutSubviews()
+		//
+		let customFieldsetContainerInsets = self.new_customFieldsetContainerInsets
+		let top_yOffset: CGFloat = self.yOffsetForViewsBelowValidationMessageView - customFieldsetContainerInsets.top
+		let bottomFieldView = self.detected_iconAndMessageView ?? /* no pid accessory label */ self.paymentID_inputView ?? self.address_inputView
+		self.fieldGroupDecorationSectionView.sizeAndLayOutToEncompass(
+			topFieldView: self.name_label,
+			bottomFieldView: bottomFieldView!,
+			//
+			withContainingWidth: self.scrollView/*not self.view*/.bounds.size.width,
+			yOffset: top_yOffset
+		)
+	}
+	override func _overridable_didLayOutFormElementsButHasYetToSizeScrollableContent()
+	{
+		super._overridable_didLayOutFormElementsButHasYetToSizeScrollableContent() // not that it does anything
+		//
+		// this is our chance to insert the layout for any views we want to add... such as the detected label
+		if self.detected_iconAndMessageView != nil {
+			let mostPreviouslyVisibleView: UIView
+			do {
+				if self.paymentID_inputView != nil {
+					mostPreviouslyVisibleView = self.paymentID_inputView!
+				} else {
+					mostPreviouslyVisibleView = self.address_inputView!
+				}
+			}
+			let label_x = self.new__label_x
+			let fullWidth_label_w = self.new__fieldLabel_w // already has customInsets subtracted
+			self.detected_iconAndMessageView!.frame = CGRect(
+				x: label_x,
+				y: mostPreviouslyVisibleView.frame.origin.y + mostPreviouslyVisibleView.frame.size.height + (7 - UICommonComponents.FormInputCells.imagePadding_y),
+				width: fullWidth_label_w,
+				height: self.detected_iconAndMessageView!.frame.size.height
+			).integral
+		}
+	}
+}

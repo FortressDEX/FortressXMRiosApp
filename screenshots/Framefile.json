@@ -1,0 +1,49 @@
+{
+  "default": {
+    "keyword": {
+      "fonts": [
+        {
+          "font": "./fonts/Oxygen-700.ttf",
+          "supported": ["en-US"]
+        }
+      ]
+    },
+    "title": {
+      "fonts": [
+        {
+          "font": "./fonts/Oxygen-700.ttf",
+          "supported": ["en-US"]
+        }
+      ],
+      "color": "#161416"
+    },
+    "background": "./background_white.jpg",
+    "padding": 50
+  },
+  "data": [
+    {
+      "filter": "Bank",
+      "keyword": {
+        "color": "#161416"
+      }
+    },
+    {
+      "filter": "Lightweight",
+      "keyword": {
+        "color": "#161416"
+      }
+    },
+    {
+      "filter": "Contacts",
+      "keyword": {
+        "color": "#161416"
+      }
+    },
+    {
+      "filter": "OpenSource",
+      "keyword": {
+        "color": "#161416"
+      }
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+../../../../../ofxiOSBoost/libs/boost/include/boost/serialization/assume_abstract.hpp
