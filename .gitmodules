@@ -1,0 +1,3 @@
+[submodule "Modules/MyMoneroCore/sub_modules/mymonero-libapp-cpp"]
+	path = Modules/MyMoneroCore/sub_modules/mymonero-libapp-cpp
+	url = https://github.com/mymonero/mymonero-libapp-cpp
